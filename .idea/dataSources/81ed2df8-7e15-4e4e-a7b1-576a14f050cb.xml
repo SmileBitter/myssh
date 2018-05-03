@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataSource name="mldn@localhost">
+  <database-model serializer="dbm" rdbms="MYSQL" format-version="4.4">
+    <root id="1"/>
+    <schema id="2" parent="1" name="mldn">
+      <Current>1</Current>
+      <Visible>1</Visible>
+    </schema>
+    <schema id="3" parent="1" name="emdb"/>
+    <schema id="4" parent="1" name="empnews"/>
+    <schema id="5" parent="1" name="information_schema"/>
+    <schema id="6" parent="1" name="mysql"/>
+    <schema id="7" parent="1" name="news"/>
+    <schema id="8" parent="1" name="performance_schema"/>
+    <schema id="9" parent="1" name="scmcc"/>
+    <schema id="10" parent="1" name="sys"/>
+    <schema id="11" parent="1" name="vote"/>
+    <table id="12" parent="2" name="member"/>
+    <column id="13" parent="12" name="mid">
+      <Position>1</Position>
+      <DataType>int(50)|0</DataType>
+      <NotNull>1</NotNull>
+      <SequenceIdentity>1</SequenceIdentity>
+    </column>
+    <column id="14" parent="12" name="name">
+      <Position>2</Position>
+      <DataType>varchar(50)|0</DataType>
+    </column>
+    <column id="15" parent="12" name="age">
+      <Position>3</Position>
+      <DataType>int(11)|0</DataType>
+    </column>
+    <column id="16" parent="12" name="sex">
+      <Position>4</Position>
+      <DataType>varchar(10)|0</DataType>
+    </column>
+    <column id="17" parent="12" name="birthday">
+      <Position>5</Position>
+      <DataType>date|0</DataType>
+    </column>
+    <column id="18" parent="12" name="salary">
+      <Position>6</Position>
+      <DataType>double|0</DataType>
+    </column>
+    <column id="19" parent="12" name="note">
+      <Position>7</Position>
+      <DataType>text|0</DataType>
+    </column>
+    <key id="20" parent="12" name="PRIMARY">
+      <NameSurrogate>1</NameSurrogate>
+      <ColNames>mid</ColNames>
+      <Primary>1</Primary>
+    </key>
+  </database-model>
+</dataSource>

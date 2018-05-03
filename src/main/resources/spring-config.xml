@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!--配置Annotation操作支持-->
+    <context:annotation-config/>
+    <!--注解包扫描路径-->
+    <context:component-scan base-package="cn.mldn"/>
+    <!--资源文件加载-->
+    <context:property-placeholder location="classpath:database.properties"/>
+
+    <!-- 配置数据库连接池 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${db.driver}"/>    <!-- 驱动程序 -->
+        <property name="jdbcUrl" value="${db.url}"/><!-- 连接地址 -->
+        <property name="user" value="${db.user}"/>    <!-- 用户名 -->
+        <property name="password" value="${db.password}"/>    <!-- 密码 -->
+        <property name="maxPoolSize" value="${pool.max}"/>    <!-- 最大的可用连接数 -->
+        <property name="minPoolSize" value="${pool.min}"/>    <!-- 最小维持的连接数 -->
+        <property name="initialPoolSize" value="${pool.init}"/>    <!-- 初始化连接数 -->
+        <property name="maxIdleTime" value="${pool.idle}"/>    <!-- 最大等待连接 -->
+    </bean>
+
+    <!--配置Hibernate中的SessionFactory程序类-->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+        <!--引用hibernate.cfg.xml-->
+        <property name="configLocation" value="classpath:hibernate.cfg.xml"/>
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--程序中的HibernateTemplate可以负责hibernate方便的处理操作，但是需要与HibernateDaoSupport整合-->
+    <bean id="hibernateTemplate" class="org.springframework.orm.hibernate5.HibernateTemplate">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <!-- 配置Hibernate的事务控制，同时可以实现数据库的关闭处理 -->
+    <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <!--表示事务采用Annotation的方式进行-->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    <!-- 定义通知，配置事务出现的环境，与业务层的方法有关 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <!--定义一切与服务层有关的方法名称，只要是使用了特定的方法名称就会自动处理事务-->
+        <tx:attributes>
+            <!-- 所有的更新操作都必须启动一个独立的事务控制 -->
+            <tx:method name="insert*" propagation="REQUIRED"/>
+            <tx:method name="update*" propagation="REQUIRED"/>
+            <tx:method name="delete*" propagation="REQUIRED"/>
+            <tx:method name="add*" propagation="REQUIRED"/>
+            <tx:method name="edit*" propagation="REQUIRED"/>
+            <tx:method name="change*" propagation="REQUIRED"/>
+            <tx:method name="remove*" propagation="REQUIRED"/>
+            <tx:method name="rm*" propagation="REQUIRED"/>
+            <tx:method name="login*" propagation="REQUIRED"/>
+            <!-- 所有的读取操作都采用只读的方式进行处理 -->
+            <tx:method name="get*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="load*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="list*" propagation="REQUIRED" read-only="true"/>
+            <tx:method name="*" propagation="REQUIRED" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!--定义事务切入点-->
+    <aop:config expose-proxy="true">
+        <!--在业务层中进行切入控制-->
+        <aop:pointcut id="pointcut" expression="execution(* cn.mldn.service..*.*(..))"/>
+        <!--所有的通知控制，交由“事务的通知处理完成”-->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pointcut"/>
+    </aop:config>
+</beans>
